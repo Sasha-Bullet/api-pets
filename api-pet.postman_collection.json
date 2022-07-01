@@ -1,0 +1,168 @@
+{
+	"info": {
+		"_postman_id": "bb50cebd-2c37-4b92-950c-914e9a3c0880",
+		"name": "api/pet",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16280622"
+	},
+	"item": [
+		{
+			"name": "find by status",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"url\", 'https://petstore.swagger.io/v2');\r",
+							"pm.environment.set(\"status\", 'available');"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response time is less than 1500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1500);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response items exist\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.length).gt(0)\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/pet/findByStatus?status={{status}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"pet",
+						"findByStatus"
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "{{status}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update pet by id",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"url\", 'https://petstore.swagger.io/v2');\r",
+							"\r",
+							"pm.sendRequest(\"https://petstore.swagger.io/v2/pet/findByStatus?status=sold\", function (err, response) {\r",
+							"    var res = response.json()\r",
+							"    pm.environment.set(\"petId\", res[0].id);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.sendRequest(\"https://randomuser.me/api/\", function (err, response) {\r",
+							"    var res = response.json()\r",
+							"    var name = res.results[0].name\r",
+							"    pm.environment.set(\"name\", name.first + ' ' + name.last);\r",
+							"});\r",
+							"\r",
+							"pm.environment.set(\"status\", 'available');\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var petId = pm.environment.get('petId');\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"message equal \" + petId, function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(+jsonData.message).to.eql(petId);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "name",
+							"value": "{{name}}",
+							"type": "text"
+						},
+						{
+							"key": "status",
+							"value": "{{status}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/pet/{{petId}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"pet",
+						"{{petId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"var statuses = ['available', 'pending', 'sold']",
+					"",
+					"pm.environment.set(\"url\", 'https://petstore.swagger.io/v2');",
+					"pm.environment.set(\"status\", statuses[Math.floor(Math.random() * statuses.length)]);"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
